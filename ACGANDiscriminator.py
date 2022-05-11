@@ -32,7 +32,7 @@ def build_discriminator(img_shape, optimizer, num_classes):
     d_pred = keras.layers.Dense(units=1, activation="sigmoid")(flatten)
     
     #Label prediction
-    l_pred = keras.layers.Dense(units=num_classes, activation="sigmoid")(flatten)
+    l_pred = keras.layers.Dense(units=num_elements, activation="sigmoid")(flatten)
 
     model = keras.Model(
         img,[d_pred, l_pred]
