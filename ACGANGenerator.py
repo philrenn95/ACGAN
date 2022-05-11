@@ -36,7 +36,6 @@ def build_generator(z_dimension, img_shape, num_classes):
         )
     
     model.summary()
-
     return model
 
 
