@@ -8,10 +8,10 @@ def build_generator(z_dimension, img_shape, num_classes):
 
     Batch_momentum = 0.8
 
-    in_label = keras.Input(shape=(1,))
+    in_label = keras.Input(shape=(num_classes,))
     li = keras.layers.Embedding(num_classes, 50)(in_label)
     li = keras.layers.Dense(units = 7 * 7 * 1)(li)
-    li = keras.layers.Reshape(target_shape=(7,7,1))(li)
+    li = keras.layers.Reshape(target_shape=(7,7,num_classes))(li)
 
     in_z = keras.Input(shape=(z_dimension))
     zi = keras.layers.Dense(units = 7 * 7 * 512, activation = "relu")(in_z)
