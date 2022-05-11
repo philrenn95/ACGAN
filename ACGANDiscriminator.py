@@ -1,7 +1,7 @@
 import keras
 import os
 
-def build_discriminator(img_shape, optimizer, load_weights):
+def build_discriminator(img_shape, optimizer, num_classes):
 
     Dropout_rate = 0.5
     Batch_momentum = 0.8
@@ -32,7 +32,7 @@ def build_discriminator(img_shape, optimizer, load_weights):
     d_pred = keras.layers.Dense(units=1, activation="sigmoid")(flatten)
     
     #Label prediction
-    l_pred = keras.layers.Dense(units=1, activation="sigmoid")(flatten)
+    l_pred = keras.layers.Dense(units=num_classes, activation="sigmoid")(flatten)
 
     model = keras.Model(
         img,[d_pred, l_pred]
@@ -40,7 +40,7 @@ def build_discriminator(img_shape, optimizer, load_weights):
 
     model.summary()
 
-    model.compile(loss = ["binary_crossentropy","binary_crossentropy"],optimizer = optimizer,metrics = ["accuracy"])
+    model.compile(loss = ["binary_crossentropy","categorical_crossentropy"],optimizer = optimizer,metrics = ["accuracy"])
     return model
 
 
