@@ -3,17 +3,14 @@ from sklearn.model_selection import learning_curve
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow_addons as tfa
 from ACGANDiscriminator import build_discriminator
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from ACGANGenerator import *
-from Data import Data
-from data_pipeline import Data_pipeline
+from mnistData import *
 import winsound
 import time
 
 
-class CGAN:
+class ACGAN:
     def __init__(self):
         # Model parameters
         #Shape of the Images
@@ -35,13 +32,14 @@ class CGAN:
 
 
     def build_new_models(self):
-        self.discriminator_model = build_discriminator(img_shape=self.img_shape,optimizer=self.optimizer)
-        self.generator_model = build_generator(z_dimension=self.z_dimension,img_shape=self.img_shape,num_classes=self.num_classes, load_weights = self.load_weights)
+        self.discriminator_model = build_discriminator(img_shape=self.img_shape,optimizer=self.optimizer, num_classes=self.num_classes)
+        self.generator_model = build_generator(z_dimension=self.z_dimension,img_shape=self.img_shape,num_classes=self.num_classes)
         self.GAN_model = define_gan(self.discriminator_model, self.generator_model, self.optimizer)
 
     def generate_latent_points(self, batch_size):
         self.z_input = np.random.randn(self.z_dimension*batch_size).reshape(batch_size, self.z_dimension)
         labels = np.random.randint(0, self.num_classes, batch_size)
+        labels = to_categorical(labels , 10)
         return[self.z_input, labels]
 
     def generate_fake_samples(self):
@@ -54,10 +52,7 @@ class CGAN:
         #Choosing random images from all train data (x_train.shape[0]) 
         self.rand_idxs = np.random.randint(0, self.x_train.shape[0], self.half_batch)
         train_imgs = self.x_train[self.rand_idxs]
-        #Transforming the images randomly
-        #train_imgs = self.datagen.random_transform(train_imgs)
         train_labels = self.y_train[self.rand_idxs]
-        #train_imgs,train_labels= self.pipeline.train_import(batch_size = self.batch_size)
         y = (np.ones((self.half_batch,1)))
         return [train_imgs, train_labels], y
     
@@ -74,7 +69,6 @@ class CGAN:
 
         for epoch in range(epochs):
             start_epoch_timer = time.time()
-            #generated_imgs = self.generator_model([noise, train_labels], training=False)
             [generated_imgs, labels_fake], y_fake = self.generate_fake_samples()
             [train_imgs, labels_real], y_real = self.generate_real_samples()
             # Train the discriminator
@@ -101,28 +95,14 @@ class CGAN:
                     validation = self.discriminator_model.evaluate(self.x_validation, [validation_ones, self.y_validation], verbose = 0, batch_size=40 )
                     print(f"validation loss :{round(validation[2],3)}"+ 
                         f"                      validation acc :{round(validation[4],3)}" )
-                    from sklearn.metrics import confusion_matrix
-                    prediction = self.discriminator_model.predict(self.x_validation)
-                    prediction = np.round(prediction[1])
-                    print(confusion_matrix( prediction, self.y_validation))
 
             if (epoch % sample_interval) == 0:
-                print("Saving AI")
-                Discriminator_weights_save_dir = PATH + os.sep + "Model" + os.sep +"discriminator_weights.h5"
-                self.discriminator_model.save_weights(Discriminator_weights_save_dir)
-                Generator_weights_save_dir = PATH + os.sep + "Model" + os.sep +"generator_weights.h5"
-                self.generator_model.save_weights(Generator_weights_save_dir)
-
                 if (epoch % (5*sample_interval)) == 0:
                     self.sample_images()
 
             if epoch > epochs:
                 print("Training finished")
                 time.sleep(3)
-                Discriminator_save_dir = PATH + os.sep + "Model" + os.sep +"discriminator.h5"
-                self.discriminator_model.save(Discriminator_save_dir)
-                Generator_save_dir = PATH + os.sep + "Model" + os.sep +"generator.h5"
-                self.generator_model.save(Generator_save_dir)
                 break
 
         self.sample_images("final")
@@ -131,7 +111,7 @@ class CGAN:
         r, c = 3, 4
         noise = np.random.normal(loc=0.0, scale=1.0, size=(r * c, self.z_dimension))
         labels = np.random.randint(0, self.num_classes,r*c)
-        classification_labels = ["poor", "good"]
+        labels = to_categorical(labels , 10)
         gen_imgs = self.generator_model.predict([noise, labels])
         gen_imgs = 0.5 * gen_imgs + 0.5
         fig, axs = plt.subplots(r, c)
@@ -140,11 +120,11 @@ class CGAN:
         for i in range(r):
             for j in range(c):
                 axs[i, j].imshow(gen_imgs[cnt, :, :, 0],cmap="gray")
-                axs[i, j].set_title(f"{classification_labels[labels[cnt]]}")
                 axs[i, j].axis("off")
                 cnt += 1
 
         img_name = f"{self.g_sample}.png"
+        IMAGES_PATH = "C://Users//renne//Desktop//Master//Projekte//GAN//AuxiliaryClassifierGAN//IMAGES//"
         fig.savefig(os.path.join(IMAGES_PATH, img_name))
         self.g_sample = self.g_sample + 1
         plt.close()
@@ -152,39 +132,21 @@ class CGAN:
 
 if __name__ == "__main__":
 
-    cgan = CGAN()
-    cgan.data_import()
-
-    if os.path.exists(os.getcwd() + os.sep + "Model"):
-        feedback = None
-        while True:
-            feedback = input("Do you want to load a pretrained Model?  \nYES = Y No = N :")
-
-            if feedback == "y" or feedback == "Y":
-                print("Loading pretrained models...")
-                cgan.build_new_models(load_weights=True)
-                print("...Models sucesfully loaded")
-                time.sleep(3)
-                break
-
-            elif feedback == "n"or feedback == "N":
-                print("Creating new models...")
-                cgan.build_new_models(load_weights=False)
-                time.sleep(3)
-                print("...Models succesfully created")
-                time.sleep(3)
-                break
-
-            else:
-                print("No correct input \nPlease type y for Yes and n for No")
-    
-    else:
-        cgan.build_new_models(load_weights=False)
+    acgan = ACGAN()
+    acgan.data_import()
 
 
-    cgan.train(
+    print("Creating new models...")
+    acgan.build_new_models()
+    time.sleep(3)
+    print("...Models succesfully created")
+    time.sleep(3)
+
+
+
+    acgan.train(
         epochs=100_000,
-        batch_size=32,
+        batch_size=64,
         sample_interval=100
     )
 
