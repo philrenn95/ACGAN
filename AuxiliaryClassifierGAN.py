@@ -6,7 +6,7 @@ import numpy as np
 from ACGANDiscriminator import build_discriminator
 from ACGANGenerator import *
 from mnistData import *
-import winsound
+import cv2
 import time
 
 
@@ -14,9 +14,9 @@ class ACGAN:
     def __init__(self):
         # Model parameters
         #Shape of the Images
-        self.img_rows = 28
-        self.img_cols = 28
-        self.img_depth = 1
+        self.img_rows = 32
+        self.img_cols = 32
+        self.img_depth = 3
         self.img_shape = (
             self.img_rows,
             self.img_cols,
@@ -119,7 +119,7 @@ class ACGAN:
 
         for i in range(r):
             for j in range(c):
-                axs[i, j].imshow(gen_imgs[cnt, :, :, 0],cmap="gray")
+                axs[i, j].imshow(gen_imgs[cnt , :, :, 0])
                 axs[i, j].axis("off")
                 cnt += 1
 
