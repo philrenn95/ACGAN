@@ -10,20 +10,20 @@ def build_generator(z_dimension, img_shape, num_classes):
 
     in_label = keras.Input(shape=(num_classes,))
     li = keras.layers.Embedding(num_classes, 50)(in_label)
-    li = keras.layers.Dense(units = 7 * 7 * 1)(li)
-    li = keras.layers.Reshape(target_shape=(7,7,num_classes))(li)
+    li = keras.layers.Dense(units = 8 * 8 * 1)(li)
+    li = keras.layers.Reshape(target_shape=(8,8,num_classes))(li)
 
     in_z = keras.Input(shape=(z_dimension))
-    zi = keras.layers.Dense(units = 7 * 7 * 512, activation = "relu")(in_z)
-    zi = keras.layers.Reshape(target_shape=(7,7,512))(zi) 
+    zi = keras.layers.Dense(units = 8 * 8 * 512, activation = "relu")(in_z)
+    zi = keras.layers.Reshape(target_shape=(8,8,512))(zi) 
     x = keras.layers.Concatenate()([li, zi])
 
-    #Size = 14x14
+    #Size = 16x16
     x = keras.layers.Conv2DTranspose(filters = 512, kernel_size = 5, strides=2, padding="same", use_bias = False)(x)
     x = keras.layers.BatchNormalization(momentum = Batch_momentum)(x)
     x = keras.layers.ReLU()(x)
 
-    #Size = 28x28
+    #Size = 32x32
     x = keras.layers.Conv2DTranspose(filters = 256, kernel_size = 5, strides=2, padding="same", use_bias = False)(x)
     x = keras.layers.BatchNormalization(momentum =Batch_momentum)(x)
     x = keras.layers.ReLU()(x)
