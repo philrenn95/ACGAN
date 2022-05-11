@@ -142,8 +142,6 @@ if __name__ == "__main__":
     print("...Models succesfully created")
     time.sleep(3)
 
-
-
     acgan.train(
         epochs=100_000,
         batch_size=64,
