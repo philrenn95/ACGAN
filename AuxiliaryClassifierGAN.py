@@ -14,9 +14,9 @@ class ACGAN:
     def __init__(self):
         # Model parameters
         #Shape of the Images
-        self.img_rows = 32
-        self.img_cols = 32
-        self.img_depth = 3
+        self.img_rows = 28
+        self.img_cols = 28
+        self.img_depth = 1
         self.img_shape = (
             self.img_rows,
             self.img_cols,
