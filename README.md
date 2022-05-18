@@ -1,2 +1,2 @@
 # ACGAN
-An auxiliary classifier gan that recreates the dataset of cifar10 and classifies the images.
+An auxiliary classifier gan that recreates the dataset of fashion mnist and classifies the images.
