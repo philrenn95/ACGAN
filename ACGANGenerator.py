@@ -50,5 +50,5 @@ def define_gan(discriminator_model, generator_model, opimizer):
 	# define gan model as taking noise and label and outputting real/fake and label outputs
 	model = keras.Model(generator_model.input, gan_output)
 	# compile model
-	model.compile(loss=['binary_crossentropy', 'binary_crossentropy'], optimizer=opimizer, metrics = [])
+	model.compile(loss=['binary_crossentropy', 'categorical_crossentropy'], optimizer=opimizer, metrics = [])
 	return model
